@@ -8,6 +8,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- KaTeX for Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
     <style>
         /* Custom accent for range inputs to match Tailwind blue-500 */
         input[type=range] {
@@ -147,39 +151,39 @@
                 <div>
                     <h3 class="font-bold text-slate-200 mb-1">1. Slant Range (Z)</h3>
                     <p class="mb-2">Exact line-of-sight distance accounting for Earth's curvature ($R_E \approx 6378$ km) and altitude ($h$).</p>
-                    <p class="bg-slate-900 p-3 rounded text-center font-mono text-blue-300 border border-slate-700">
-                        Z = -R_E \sin(\theta) + \sqrt{(R_E \sin(\theta))^2 + 2R_E h + h^2}
-                    </p>
+                    <div class="bg-slate-900 p-3 rounded text-center text-blue-300 border border-slate-700 overflow-x-auto">
+                        $$Z = -R_E \sin(\theta) + \sqrt{(R_E \sin(\theta))^2 + 2R_E h + h^2}$$
+                    </div>
                 </div>
                 <div>
                     <h3 class="font-bold text-slate-200 mb-1">2. Divergence & Spot Size</h3>
                     <p class="mb-2">Diffraction-limited angular spread for a uniform circular aperture.</p>
-                    <p class="bg-slate-900 p-3 rounded text-center font-mono text-blue-300 border border-slate-700">
-                        \theta_{div} ≈ 1.22 \frac{λ}{D_{tx}} \quad \Rightarrow \quad d_{spot} = Z \cdot \theta_{div}
-                    </p>
+                    <div class="bg-slate-900 p-3 rounded text-center text-blue-300 border border-slate-700 overflow-x-auto">
+                        $$\theta_{div} \approx 1.22 \frac{\lambda}{D_{tx}} \quad \Rightarrow \quad d_{spot} = Z \cdot \theta_{div}$$
+                    </div>
                 </div>
                 <div>
                     <h3 class="font-bold text-slate-200 mb-1">3. Free Space Path Loss (FSPL) & Gains</h3>
                     <p class="mb-2">Standard far-field formulation applied to optical frequencies.</p>
-                    <p class="bg-slate-900 p-3 rounded text-center font-mono text-blue-300 border border-slate-700">
-                        G = \left(\frac{\pi D}{λ}\right)^2 \quad \text{and} \quad \text{FSPL}_{dB} = 20 \log_{10}\left(\frac{4 \pi Z}{λ}\right)
-                    </p>
+                    <div class="bg-slate-900 p-3 rounded text-center text-blue-300 border border-slate-700 overflow-x-auto">
+                        $$G = \left(\frac{\pi D}{\lambda}\right)^2 \quad \text{and} \quad \text{FSPL}_{dB} = 20 \log_{10}\left(\frac{4 \pi Z}{\lambda}\right)$$
+                    </div>
                 </div>
                 <div>
                     <h3 class="font-bold text-slate-200 mb-1">4. Link Equation</h3>
                     <p class="mb-2">Total received power ($P_{rx}$) including systematic losses and transceiver efficiencies.</p>
-                    <p class="bg-slate-900 p-3 rounded text-center font-mono text-blue-300 border border-slate-700">
-                        P_{rx[dBm]} = P_{tx[dBm]} + G_{tx} + G_{rx} - \text{FSPL} - L_{atm} - L_{point} + \eta_{tx} + \eta_{rx}
-                    </p>
+                    <div class="bg-slate-900 p-3 rounded text-center text-blue-300 border border-slate-700 overflow-x-auto">
+                        $$P_{rx[dBm]} = P_{tx[dBm]} + G_{tx} + G_{rx} - \text{FSPL} - L_{atm} - L_{point} + \eta_{tx} + \eta_{rx}$$
+                    </div>
                 </div>
                 <div>
                     <h3 class="font-bold text-slate-200 mb-1">5. Quantum Limit Data Rate</h3>
                     <p class="mb-2">
                         Theoretical maximum data rate based on photon energy ($E_\gamma$) and required <strong>photons/bit</strong> ($N_{ppb}$).
                     </p>
-                    <p class="bg-slate-900 p-3 rounded text-center font-mono text-blue-300 border border-slate-700">
-                        E_{\gamma} = \frac{hc}{λ} \quad \Rightarrow \quad R_{bps} = \frac{P_{rx[W]}}{N_{ppb} \cdot E_{\gamma}}
-                    </p>
+                    <div class="bg-slate-900 p-3 rounded text-center text-blue-300 border border-slate-700 overflow-x-auto">
+                        $$E_{\gamma} = \frac{hc}{\lambda} \quad \Rightarrow \quad R_{bps} = \frac{P_{rx[W]}}{N_{ppb} \cdot E_{\gamma}}$$
+                    </div>
                 </div>
             </div>
         </div>
@@ -392,10 +396,22 @@
         }
 
         // Modal toggle logic
+        let mathRendered = false;
         function toggleHelp() {
             const modal = document.getElementById('helpModal');
             modal.classList.toggle('hidden');
             modal.classList.toggle('flex');
+            
+            // Just-In-Time Math Rendering
+            if (!mathRendered && typeof renderMathInElement === 'function') {
+                renderMathInElement(document.getElementById('helpModal'), {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false}
+                    ]
+                });
+                mathRendered = true;
+            }
         }
 
         // Initialise Icons and Calculations on load
