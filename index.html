@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Space Optical Link Budget Calculator</title>
+    <!-- Tailwind CSS for rapid styling matching the React version -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Custom accent for range inputs to match Tailwind blue-500 */
+        input[type=range] {
+            accent-color: #3b82f6;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-900 text-slate-100 p-6 font-sans relative">
+
+    <!-- Corporate Branding -->
+    <div class="absolute top-6 right-6 text-sm font-bold tracking-widest text-slate-500 hidden md:block">
+        AE ENGINEERING TOOLS
+    </div>
+
+    <div class="max-w-6xl mx-auto space-y-6 pt-8 md:pt-0">
+        
+        <!-- Header -->
+        <div class="flex items-center space-x-3 border-b border-slate-700 pb-4">
+            <i data-lucide="satellite" class="w-8 h-8 text-blue-400"></i>
+            <h1 class="text-2xl font-bold tracking-tight">Optical Link Budget Calculator (LEO to Lunar)</h1>
+            <button onclick="toggleHelp()" class="p-2 hover:bg-slate-800 rounded-full transition-colors" title="View Math">
+                <i data-lucide="help-circle" class="w-5 h-5 text-slate-400 hover:text-blue-400"></i>
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Inputs Section -->
+            <div class="lg:col-span-4 space-y-6">
+                <!-- Primary Parameters -->
+                <div class="bg-slate-800 rounded-xl p-5 border border-slate-700 shadow-lg">
+                    <h2 class="text-lg font-semibold mb-4 flex items-center">
+                        <i data-lucide="settings" class="w-5 h-5 mr-2 text-blue-400"></i> Primary Parameters
+                    </h2>
+                    
+                    <!-- Input Templates Generated via JS for cleaner code -->
+                    <div id="primary-inputs"></div>
+                </div>
+
+                <!-- Advanced Assumptions -->
+                <div class="bg-slate-800 rounded-xl p-5 border border-slate-700 shadow-lg">
+                    <h2 class="text-lg font-semibold mb-4 text-slate-400">Advanced Assumptions</h2>
+                    <div id="advanced-inputs"></div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="lg:col-span-8 space-y-6">
+                
+                <!-- Key Metrics Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-blue-900/20 border border-blue-500/30 rounded-xl p-5 flex flex-col items-center justify-center text-center">
+                        <i data-lucide="target" class="w-8 h-8 text-blue-400 mb-2"></i>
+                        <span class="text-sm text-slate-400 mb-1">Spot Diameter on Ground</span>
+                        <span class="text-3xl font-bold text-white"><span id="out_spotSizeM">0.00</span> <span class="text-lg text-slate-400">m</span></span>
+                    </div>
+                    <div class="bg-emerald-900/20 border border-emerald-500/30 rounded-xl p-5 flex flex-col items-center justify-center text-center">
+                        <i data-lucide="activity" class="w-8 h-8 text-emerald-400 mb-2"></i>
+                        <span class="text-sm text-slate-400 mb-1">Slant Range</span>
+                        <span class="text-3xl font-bold text-white"><span id="out_slantRangeKm">0.0</span> <span class="text-lg text-slate-400">km</span></span>
+                    </div>
+                    <div class="bg-purple-900/20 border border-purple-500/30 rounded-xl p-5 flex flex-col items-center justify-center text-center">
+                        <i data-lucide="wifi" class="w-8 h-8 text-purple-400 mb-2"></i>
+                        <span class="text-sm text-slate-400 mb-1">Estimated OOK Data Rate</span>
+                        <span class="text-3xl font-bold text-white"><span id="out_dataRateGbps">0.00</span> <span class="text-lg text-slate-400">Gbps</span></span>
+                    </div>
+                </div>
+
+                <!-- Link Budget Table -->
+                <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-lg">
+                    <h2 class="text-xl font-bold mb-4 flex items-center border-b border-slate-700 pb-3">
+                        <i data-lucide="zap" class="w-5 h-5 mr-2 text-yellow-400"></i> Overall Link Budget Breakdown
+                    </h2>
+                    
+                    <div class="space-y-3 font-mono text-sm">
+                        <div class="flex justify-between items-center py-2 hover:bg-slate-700/50 px-2 rounded">
+                            <span class="text-slate-400">Tx Power (<span id="out_txPowerW_lbl">1</span> W)</span>
+                            <span class="font-semibold text-white" id="out_txPowerDbm">0.00 dBm</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 hover:bg-slate-700/50 px-2 rounded">
+                            <span class="text-slate-400">Tx Optics Efficiency (<span id="out_txEffPct_lbl">70</span>%)</span>
+                            <span class="font-semibold text-red-400" id="out_txEffDb">0.00 dB</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 hover:bg-slate-700/50 px-2 rounded">
+                            <span class="text-slate-400">Tx Antenna Gain (D=<span id="out_txAperture_lbl">10</span>cm)</span>
+                            <span class="font-semibold text-emerald-400" id="out_txGainDb">+0.00 dB</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 bg-slate-900/50 px-2 rounded border-l-2 border-slate-600">
+                            <span class="text-slate-400">Free Space Path Loss (Z=<span id="out_slantRangeKm_lbl">0</span>km)</span>
+                            <span class="font-semibold text-red-400" id="out_fsplDb">-0.00 dB</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 hover:bg-slate-700/50 px-2 rounded">
+                            <span class="text-slate-400">Atmospheric Loss</span>
+                            <span class="font-semibold text-red-400" id="out_atmosLossDb">-0.00 dB</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 hover:bg-slate-700/50 px-2 rounded">
+                            <span class="text-slate-400">Pointing Loss (Jitter/Wander)</span>
+                            <span class="font-semibold text-red-400" id="out_pointingLossDb">-0.00 dB</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 hover:bg-slate-700/50 px-2 rounded">
+                            <span class="text-slate-400">Rx Antenna Gain (D=<span id="out_rxAperture_lbl">60</span>cm)</span>
+                            <span class="font-semibold text-emerald-400" id="out_rxGainDb">+0.00 dB</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 hover:bg-slate-700/50 px-2 rounded">
+                            <span class="text-slate-400">Rx Optics Efficiency (<span id="out_rxEffPct_lbl">50</span>%)</span>
+                            <span class="font-semibold text-red-400" id="out_rxEffDb">0.00 dB</span>
+                        </div>
+                        
+                        <div class="my-4 border-t border-slate-600 border-dashed"></div>
+                        
+                        <div class="flex justify-between items-center py-3 px-4 bg-slate-900 rounded-lg border border-slate-700">
+                            <span class="text-base font-bold text-slate-300">Total Received Power</span>
+                            <div class="text-right">
+                                <div class="text-xl font-bold text-blue-400" id="out_prxDbM">0.00 dBm</div>
+                                <div class="text-xs text-slate-500"><span id="out_prxNw">0.00</span> nW</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Math Help Modal -->
+    <div id="helpModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div class="bg-slate-800 rounded-xl max-w-2xl w-full p-6 border border-slate-600 shadow-2xl overflow-y-auto max-h-[90vh]">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-3">
+                <h2 class="text-xl font-bold text-white flex items-center">
+                    <i data-lucide="help-circle" class="w-5 h-5 mr-2 text-blue-400"></i> Mathematical Foundations
+                </h2>
+                <button onclick="toggleHelp()" class="p-1 hover:bg-slate-700 rounded transition-colors">
+                    <i data-lucide="x" class="w-6 h-6 text-slate-400 hover:text-red-400"></i>
+                </button>
+            </div>
+            <div class="space-y-5 text-slate-300 text-sm">
+                <div>
+                    <h3 class="font-bold text-slate-200 mb-1">1. Slant Range (Z)</h3>
+                    <p class="mb-2">Exact line-of-sight distance accounting for Earth's curvature ($R_E \approx 6378$ km) and altitude ($h$).</p>
+                    <p class="bg-slate-900 p-3 rounded text-center font-mono text-blue-300 border border-slate-700">
+                        Z = -R_E \sin(\theta) + \sqrt{(R_E \sin(\theta))^2 + 2R_E h + h^2}
+                    </p>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-200 mb-1">2. Divergence & Spot Size</h3>
+                    <p class="mb-2">Diffraction-limited angular spread for a uniform circular aperture.</p>
+                    <p class="bg-slate-900 p-3 rounded text-center font-mono text-blue-300 border border-slate-700">
+                        \theta_{div} ≈ 1.22 \frac{λ}{D_{tx}} \quad \Rightarrow \quad d_{spot} = Z \cdot \theta_{div}
+                    </p>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-200 mb-1">3. Free Space Path Loss (FSPL) & Gains</h3>
+                    <p class="mb-2">Standard far-field formulation applied to optical frequencies.</p>
+                    <p class="bg-slate-900 p-3 rounded text-center font-mono text-blue-300 border border-slate-700">
+                        G = \left(\frac{\pi D}{λ}\right)^2 \quad \text{and} \quad \text{FSPL}_{dB} = 20 \log_{10}\left(\frac{4 \pi Z}{λ}\right)
+                    </p>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-200 mb-1">4. Link Equation</h3>
+                    <p class="mb-2">Total received power ($P_{rx}$) including systematic losses and transceiver efficiencies.</p>
+                    <p class="bg-slate-900 p-3 rounded text-center font-mono text-blue-300 border border-slate-700">
+                        P_{rx[dBm]} = P_{tx[dBm]} + G_{tx} + G_{rx} - \text{FSPL} - L_{atm} - L_{point} + \eta_{tx} + \eta_{rx}
+                    </p>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-200 mb-1">5. Quantum Limit Data Rate</h3>
+                    <p class="mb-2">
+                        Theoretical maximum data rate based on photon energy ($E_\gamma$) and required <strong>photons/bit</strong> ($N_{ppb}$).
+                    </p>
+                    <p class="bg-slate-900 p-3 rounded text-center font-mono text-blue-300 border border-slate-700">
+                        E_{\gamma} = \frac{hc}{λ} \quad \Rightarrow \quad R_{bps} = \frac{P_{rx[W]}}{N_{ppb} \cdot E_{\gamma}}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Application Logic -->
+    <script>
+        // Physical Constants
+        const RE_KM = 6378.137;
+        const C = 299792458;
+        const H = 6.62607015e-34;
+
+        // Definition of all inputs
+        const primaryParams = [
+            { id: 'wavelengthNm', label: 'Wavelength', val: 1550, min: 800, max: 1600, step: 1, unit: 'nm' },
+            { id: 'txPowerW', label: 'Tx Power', val: 0.2, min: 0.1, max: 100, step: 0.1, unit: 'W' },
+            { id: 'txApertureCm', label: 'Tx Aperture', val: 1.0, min: 1, max: 50, step: 1, unit: 'cm' },
+            { id: 'altitudeKm', label: 'Spacecraft Altitude', val: 400, min: 300, max: 400000, step: 100, unit: 'km' },
+            { id: 'rxApertureCm', label: 'Rx Aperture', val: 30.0, min: 10, max: 1000, step: 5, unit: 'cm' },
+            { id: 'rxEfficiencyPct', label: 'Rx Efficiency', val: 30, min: 10, max: 100, step: 5, unit: '%' },
+            { id: 'elevationDeg', label: 'Elevation Angle', val: 30.0, min: 10, max: 90, step: 1, unit: '°' }
+        ];
+
+        const advancedParams = [
+            { id: 'photonsPerBit', label: 'OOK Sensitivity', val: 100, min: 20, max: 500, step: 10, unit: 'p/b' },
+            { id: 'atmosLossDb', label: 'Atmospheric Loss', val: 3.0, min: 0, max: 15, step: 0.5, unit: 'dB' },
+            { id: 'pointingLossDb', label: 'Pointing Loss', val: 3.0, min: 0, max: 10, step: 0.5, unit: 'dB' },
+            { id: 'txEfficiencyPct', label: 'Tx Efficiency', val: 70, min: 10, max: 100, step: 5, unit: '%' }
+        ];
+
+        // Generator for HTML input rows
+        function createInputRow(param) {
+            return `
+                <div class="flex flex-col mb-4">
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-sm font-medium text-slate-300">${param.label}</label>
+                        <div class="flex items-center space-x-2">
+                            <input type="number" id="${param.id}_num" min="${param.min}" max="${param.max}" step="${param.step}" value="${param.val}" 
+                                class="w-24 bg-slate-700 text-right text-sm font-bold text-blue-400 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                            <span class="text-sm font-bold text-slate-400 w-8">${param.unit}</span>
+                        </div>
+                    </div>
+                    <input type="range" id="${param.id}_range" min="${param.min}" max="${param.max}" step="${param.step}" value="${param.val}" 
+                        class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer" />
+                </div>
+            `;
+        }
+
+        // Initialize DOM Elements
+        document.getElementById('primary-inputs').innerHTML = primaryParams.map(createInputRow).join('');
+        document.getElementById('advanced-inputs').innerHTML = advancedParams.map(createInputRow).join('');
+
+        // Bind event listeners allowing multi-character typing without focus loss
+        const allParams = [...primaryParams, ...advancedParams];
+        allParams.forEach(p => {
+            const numEl = document.getElementById(p.id + '_num');
+            const rangeEl = document.getElementById(p.id + '_range');
+
+            // Range slider immediately updates calculation and number text
+            rangeEl.addEventListener('input', (e) => {
+                numEl.value = e.target.value;
+                calculateLinkBudget();
+            });
+
+            // Text input only updates calculation when blurred (focus lost)
+            numEl.addEventListener('blur', (e) => {
+                let val = parseFloat(e.target.value);
+                if (isNaN(val)) val = parseFloat(rangeEl.value);
+                // Clamp limits
+                val = Math.max(p.min, Math.min(p.max, val));
+                numEl.value = val;
+                rangeEl.value = val;
+                calculateLinkBudget();
+            });
+
+            // Enter key acts as blur
+            numEl.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') numEl.blur();
+            });
+        });
+
+        // Helper function to safely fetch float from range
+        function getVal(id) {
+            return parseFloat(document.getElementById(id + '_range').value);
+        }
+
+        // Helper function to update text content
+        function setText(id, text) {
+            const el = document.getElementById(id);
+            if (el) el.innerText = text;
+        }
+
+        // Helper to format large numbers compactly
+        function formatMetric(val) {
+            if (val < 0.001) return val.toExponential(2);
+            if (val > 1000000) return (val / 1000000).toFixed(2) + ' M';
+            if (val > 1000) return (val / 1000).toFixed(2) + ' k';
+            return val.toFixed(2);
+        }
+
+        function calculateLinkBudget() {
+            // Extract current state
+            const wavelengthNm = getVal('wavelengthNm');
+            const txPowerW = getVal('txPowerW');
+            const txApertureCm = getVal('txApertureCm');
+            const altitudeKm = getVal('altitudeKm');
+            const rxApertureCm = getVal('rxApertureCm');
+            const rxEfficiencyPct = getVal('rxEfficiencyPct');
+            const elevationDeg = getVal('elevationDeg');
+            
+            const photonsPerBit = getVal('photonsPerBit');
+            const atmosLossDb = getVal('atmosLossDb');
+            const pointingLossDb = getVal('pointingLossDb');
+            const txEfficiencyPct = getVal('txEfficiencyPct');
+
+            // Conversions
+            const lambdaM = wavelengthNm * 1e-9;
+            const dTxM = txApertureCm / 100;
+            const dRxM = rxApertureCm / 100;
+            const elevRad = (elevationDeg * Math.PI) / 180;
+            
+            const txPowerDbm = 10 * Math.log10(txPowerW * 1000);
+            const rxEffDb = 10 * Math.log10(rxEfficiencyPct / 100);
+            const txEffDb = 10 * Math.log10(txEfficiencyPct / 100);
+
+            // Slant Range (Z)
+            const sinEl = Math.sin(elevRad);
+            const term1 = -RE_KM * sinEl;
+            const term2 = Math.sqrt(Math.pow(RE_KM * sinEl, 2) + 2 * RE_KM * altitudeKm + Math.pow(altitudeKm, 2));
+            const slantRangeKm = term1 + term2;
+            const slantRangeM = slantRangeKm * 1000;
+
+            // Beam Divergence & Spot Size
+            const divAngleRad = 1.22 * (lambdaM / dTxM);
+            const spotSizeM = slantRangeM * divAngleRad;
+
+            // Antenna Gains & FSPL
+            const txGainDb = 10 * Math.log10(Math.pow((Math.PI * dTxM) / lambdaM, 2));
+            const rxGainDb = 10 * Math.log10(Math.pow((Math.PI * dRxM) / lambdaM, 2));
+            const fsplDb = 20 * Math.log10((4 * Math.PI * slantRangeM) / lambdaM);
+
+            // Total Received Power
+            const prxDbM = txPowerDbm + txEffDb + txGainDb - fsplDb + rxGainDb + rxEffDb - atmosLossDb - pointingLossDb;
+            const prxWatts = Math.pow(10, (prxDbM - 30) / 10);
+
+            // Data Rate Estimation (OOK)
+            const photonEnergyJ = (H * C) / lambdaM;
+            const requiredEnergyPerBit = photonsPerBit * photonEnergyJ;
+            const dataRateBps = prxWatts / requiredEnergyPerBit;
+            
+            // Format data rate dynamically
+            let dataRateFormatted = "0.00";
+            let dataRateUnit = "bps";
+            if (dataRateBps >= 1e9) {
+                dataRateFormatted = (dataRateBps / 1e9).toFixed(2);
+                dataRateUnit = "Gbps";
+            } else if (dataRateBps >= 1e6) {
+                dataRateFormatted = (dataRateBps / 1e6).toFixed(2);
+                dataRateUnit = "Mbps";
+            } else if (dataRateBps >= 1e3) {
+                dataRateFormatted = (dataRateBps / 1e3).toFixed(2);
+                dataRateUnit = "kbps";
+            } else {
+                dataRateFormatted = dataRateBps.toFixed(2);
+            }
+
+            // Format Spot Size dynamically
+            let spotSizeFormatted = "0.00";
+            let spotSizeUnit = "m";
+            if (spotSizeM >= 1000) {
+                spotSizeFormatted = (spotSizeM / 1000).toFixed(2);
+                spotSizeUnit = "km";
+            } else {
+                spotSizeFormatted = spotSizeM.toFixed(2);
+            }
+
+            // Update DOM metrics
+            document.getElementById('out_spotSizeM').innerText = spotSizeFormatted;
+            document.getElementById('out_spotSizeM').nextElementSibling.innerText = spotSizeUnit;
+            
+            setText('out_slantRangeKm', formatMetric(slantRangeKm));
+            
+            document.getElementById('out_dataRateGbps').innerText = dataRateFormatted;
+            document.getElementById('out_dataRateGbps').nextElementSibling.innerText = dataRateUnit;
+
+            // Update Budget Table
+            setText('out_txPowerW_lbl', txPowerW);
+            setText('out_txPowerDbm', txPowerDbm.toFixed(2) + ' dBm');
+            
+            setText('out_txEffPct_lbl', txEfficiencyPct);
+            setText('out_txEffDb', txEffDb.toFixed(2) + ' dB');
+            
+            setText('out_txAperture_lbl', txApertureCm);
+            setText('out_txGainDb', '+' + txGainDb.toFixed(2) + ' dB');
+            
+            setText('out_slantRangeKm_lbl', formatMetric(slantRangeKm));
+            setText('out_fsplDb', '-' + fsplDb.toFixed(2) + ' dB');
+            
+            setText('out_atmosLossDb', '-' + atmosLossDb.toFixed(2) + ' dB');
+            setText('out_pointingLossDb', '-' + pointingLossDb.toFixed(2) + ' dB');
+            
+            setText('out_rxAperture_lbl', rxApertureCm);
+            setText('out_rxGainDb', '+' + rxGainDb.toFixed(2) + ' dB');
+            
+            setText('out_rxEffPct_lbl', rxEfficiencyPct);
+            setText('out_rxEffDb', rxEffDb.toFixed(2) + ' dB');
+
+            setText('out_prxDbM', prxDbM.toFixed(2) + ' dBm');
+            setText('out_prxNw', (prxWatts * 1e9 < 0.01) ? (prxWatts * 1e12).toFixed(2) + ' pW' : (prxWatts * 1e9).toFixed(2) + ' nW');
+        }
+
+        // Modal toggle logic
+        function toggleHelp() {
+            const modal = document.getElementById('helpModal');
+            modal.classList.toggle('hidden');
+            modal.classList.toggle('flex');
+        }
+
+        // Initialise Icons and Calculations on load
+        lucide.createIcons();
+        calculateLinkBudget();
+    </script>
+</body>
+</html>
