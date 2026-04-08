@@ -227,16 +227,15 @@ rangeEl.addEventListener('input', (e) => {
 numEl.value = e.target.value;
 calculateLinkBudget();
 });
-// Text input only updates calculation when blurred (focus lost)
-numEl.addEventListener('blur', (e) => {
-let val = parseFloat(e.target.value);
-if (isNaN(val)) val = parseFloat(rangeEl.value);
-// Clamp limits
-val = Math.max(p.min, Math.min(p.max, val));
-numEl.value = val;
-rangeEl.value = val;
-calculateLinkBudget();
-});
+// Number input immediately updates calculation on spinner click
+            numEl.addEventListener('input', (e) => {
+                let val = parseFloat(e.target.value);
+                // Only update if it's a valid number to prevent crashing while typing
+                if (!isNaN(val)) {
+                    rangeEl.value = val;
+                    calculateLinkBudget();
+                }
+            });
 // Enter key acts as blur
 numEl.addEventListener('keydown', (e) => {
 if (e.key === 'Enter') numEl.blur();
