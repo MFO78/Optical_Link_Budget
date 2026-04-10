@@ -24,7 +24,7 @@ accent-color: #3b82f6;
 <div class="absolute top-6 right-6 text-sm font-bold tracking-widest text-slate-500 hidden md:block">
 AF ENGINEERING TOOLS
 </div>
-<div class="max-w-6xl mx-auto space-y-6 pt-8 md:pt-0">
+<div class="max-w-7xl mx-auto space-y-6 pt-8 md:pt-0">
 <!-- Header -->
 <div class="flex items-center space-x-3 border-b border-slate-700 pb-4">
 <i data-lucide="satellite" class="w-8 h-8 text-blue-400"></i>
@@ -33,9 +33,9 @@ AF ENGINEERING TOOLS
 <i data-lucide="help-circle" class="w-5 h-5 text-slate-400 hover:text-blue-400"></i>
 </button>
 </div>
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
 <!-- Inputs Section -->
-<div class="lg:col-span-4 space-y-6">
+<div class="xl:col-span-4 space-y-6">
 <!-- Primary Parameters -->
 <div class="bg-slate-800 rounded-xl p-5 border border-slate-700 shadow-lg">
 <h2 class="text-lg font-semibold mb-4 flex items-center">
@@ -51,23 +51,33 @@ AF ENGINEERING TOOLS
 </div>
 </div>
 <!-- Results Section -->
-<div class="lg:col-span-8 space-y-6">
+<div class="xl:col-span-8 space-y-6">
 <!-- Key Metrics Cards -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<div class="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-4">
 <div class="bg-blue-900/20 border border-blue-500/30 rounded-xl p-5 flex flex-col items-center justify-center text-center">
 <i data-lucide="target" class="w-8 h-8 text-blue-400 mb-2"></i>
 <span class="text-sm text-slate-400 mb-1" title="Spot diameter assuming satellite is directly overhead">Spot Diameter (Zenith)</span>
-<span class="text-3xl font-bold text-white"><span id="out_spotSizeM">0.00</span> <span class="text-lg text-slate-400">m</span></span>
+<span class="text-2xl font-bold text-white"><span id="out_spotSizeM">0.00</span> <span class="text-base text-slate-400" id="out_spotSizeUnit">m</span></span>
+</div>
+<div class="bg-amber-900/20 border border-amber-500/30 rounded-xl p-5 flex flex-col items-center justify-center text-center">
+<i data-lucide="waves" class="w-8 h-8 text-amber-400 mb-2"></i>
+<span class="text-sm text-slate-400 mb-1" title="Diffraction-limited half-angle">Beam Divergence</span>
+<span class="text-2xl font-bold text-white"><span id="out_beamDivergence">0.00</span> <span class="text-base text-slate-400">&mu;rad</span></span>
 </div>
 <div class="bg-emerald-900/20 border border-emerald-500/30 rounded-xl p-5 flex flex-col items-center justify-center text-center">
 <i data-lucide="activity" class="w-8 h-8 text-emerald-400 mb-2"></i>
 <span class="text-sm text-slate-400 mb-1">Slant Range</span>
-<span class="text-3xl font-bold text-white"><span id="out_slantRangeKm">0.0</span> <span class="text-lg text-slate-400">km</span></span>
+<span class="text-2xl font-bold text-white"><span id="out_slantRangeKm">0.0</span> <span class="text-base text-slate-400">km</span></span>
 </div>
 <div class="bg-purple-900/20 border border-purple-500/30 rounded-xl p-5 flex flex-col items-center justify-center text-center">
 <i data-lucide="wifi" class="w-8 h-8 text-purple-400 mb-2"></i>
-<span class="text-sm text-slate-400 mb-1">Estimated OOK Data Rate</span>
-<span class="text-3xl font-bold text-white"><span id="out_dataRateGbps">0.00</span> <span class="text-lg text-slate-400">Gbps</span></span>
+<span class="text-sm text-slate-400 mb-1">Est. OOK Data Rate</span>
+<span class="text-2xl font-bold text-white"><span id="out_dataRateGbps">0.00</span> <span class="text-base text-slate-400" id="out_dataRateUnit">Gbps</span></span>
+</div>
+<div class="bg-indigo-900/20 border border-indigo-500/30 rounded-xl p-5 flex flex-col items-center justify-center text-center">
+<i data-lucide="rss" class="w-8 h-8 text-indigo-400 mb-2"></i>
+<span class="text-sm text-slate-400 mb-1">Est. DPSK Data Rate</span>
+<span class="text-2xl font-bold text-white"><span id="out_dpskDataRateGbps">0.00</span> <span class="text-base text-slate-400" id="out_dpskDataRateUnit">Gbps</span></span>
 </div>
 </div>
 <!-- Link Budget Table -->
@@ -162,9 +172,9 @@ $$P_{rx[dBm]} = P_{tx[dBm]} - L_{geo} - L_{atm} - L_{point} - L_{tx\_optics} - L
 </div>
 </div>
 <div>
-<h3 class="font-bold text-slate-200 mb-1">6. Quantum Limit Data Rate</h3>
+<h3 class="font-bold text-slate-200 mb-1">6. Quantum Limit Data Rate (OOK / DPSK)</h3>
 <p class="mb-2">
-Theoretical maximum data rate based on photon energy ($E_\gamma$) and required <strong>photons/bit</strong> ($N_{ppb}$).
+Theoretical maximum data rate based on photon energy ($E_\gamma$) and required <strong>photons/bit</strong> ($N_{ppb}$). <strong>DPSK</strong> inherently requires fewer photons/bit than <strong>OOK</strong> due to the advantages of coherent phase detection.
 </p>
 <div class="bg-slate-900 p-3 rounded text-center text-blue-300 border border-slate-700 overflow-x-auto">
 $$E_{\gamma} = \frac{hc}{\lambda} \quad \Rightarrow \quad R_{bps} = \frac{P_{rx[W]}}{N_{ppb} \cdot E_{\gamma}}$$
@@ -192,6 +202,7 @@ const primaryParams = [
 ];
 const advancedParams = [
 { id: 'photonsPerBit', label: 'OOK Sensitivity', val: 5000, min: 500, max: 15000, step: 100, unit: 'p/b' },
+{ id: 'dpskPhotonsPerBit', label: 'DPSK Sensitivity', val: 2500, min: 10, max: 15000, step: 10, unit: 'p/b' },
 { id: 'visibilityKm', label: 'Visibility (V)', val: 15.0, min: 0.1, max: 100, step: 1, unit: 'km' },
 { id: 'qParameter', label: 'Scattering (q)', val: 1.6, min: 0.0, max: 2.0, step: 0.1, unit: '' },
 { id: 'pointingLossDb', label: 'Pointing Loss', val: 3.0, min: 0, max: 10, step: 0.5, unit: 'dB' },
@@ -267,6 +278,7 @@ const rxApertureCm = getVal('rxApertureCm');
 const rxEfficiencyPct = getVal('rxEfficiencyPct');
 const elevationDeg = getVal('elevationDeg');
 const photonsPerBit = getVal('photonsPerBit');
+const dpskPhotonsPerBit = getVal('dpskPhotonsPerBit');
 const visibilityKm = getVal('visibilityKm');
 const qParameter = getVal('qParameter');
 const pointingLossDb = getVal('pointingLossDb');
@@ -288,6 +300,7 @@ const slantRangeKm = term1 + term2;
 const slantRangeM = slantRangeKm * 1000;
 // Beam Divergence
 const divAngleRad = 1.22 * (lambdaM / dTxM);
+const divAngleUrad = divAngleRad * 1e6; // Convert to microradians (urad)
 // Actual computational spot size using slant range
 const computationalSpotSizeM = dTxM + (slantRangeM * divAngleRad);
 // Pure zenith spot size displayed to the user
@@ -308,11 +321,15 @@ const atmosLossDb = alphaDbPerKm * effectiveAtmThicknessKm;
 // Total Received Power (all terms are either negative dB losses or added to the base dBm)
 const prxDbM = txPowerDbm + txOpticsLossDb + geoLossDb + rxOpticsLossDb - atmosLossDb - pointingLossDb;
 const prxWatts = Math.pow(10, (prxDbM - 30) / 10);
-// Data Rate Estimation (OOK)
+// Data Rate Estimations
 const photonEnergyJ = (H * C) / lambdaM;
+// 1. OOK Data Rate
 const requiredEnergyPerBit = photonsPerBit * photonEnergyJ;
 const dataRateBps = prxWatts / requiredEnergyPerBit;
-// Format data rate dynamically
+// 2. DPSK Data Rate
+const dpskRequiredEnergyPerBit = dpskPhotonsPerBit * photonEnergyJ;
+const dpskDataRateBps = prxWatts / dpskRequiredEnergyPerBit;
+// Format OOK data rate dynamically
 let dataRateFormatted = "0.00";
 let dataRateUnit = "bps";
 if (dataRateBps >= 1e9) {
@@ -327,6 +344,21 @@ dataRateUnit = "kbps";
 } else {
 dataRateFormatted = dataRateBps.toFixed(2);
 }
+// Format DPSK data rate dynamically
+let dpskDataRateFormatted = "0.00";
+let dpskDataRateUnit = "bps";
+if (dpskDataRateBps >= 1e9) {
+dpskDataRateFormatted = (dpskDataRateBps / 1e9).toFixed(2);
+dpskDataRateUnit = "Gbps";
+} else if (dpskDataRateBps >= 1e6) {
+dpskDataRateFormatted = (dpskDataRateBps / 1e6).toFixed(2);
+dpskDataRateUnit = "Mbps";
+} else if (dpskDataRateBps >= 1e3) {
+dpskDataRateFormatted = (dpskDataRateBps / 1e3).toFixed(2);
+dpskDataRateUnit = "kbps";
+} else {
+dpskDataRateFormatted = dpskDataRateBps.toFixed(2);
+}
 // Format Zenith Spot Size dynamically for display
 let spotSizeFormatted = "0.00";
 let spotSizeUnit = "m";
@@ -338,10 +370,13 @@ spotSizeFormatted = zenithSpotSizeM.toFixed(2);
 }
 // Update DOM metrics
 document.getElementById('out_spotSizeM').innerText = spotSizeFormatted;
-document.getElementById('out_spotSizeM').nextElementSibling.innerText = spotSizeUnit;
+document.getElementById('out_spotSizeUnit').innerText = spotSizeUnit;
+document.getElementById('out_beamDivergence').innerText = divAngleUrad.toFixed(2);
 setText('out_slantRangeKm', formatMetric(slantRangeKm));
 document.getElementById('out_dataRateGbps').innerText = dataRateFormatted;
-document.getElementById('out_dataRateGbps').nextElementSibling.innerText = dataRateUnit;
+document.getElementById('out_dataRateUnit').innerText = dataRateUnit;
+document.getElementById('out_dpskDataRateGbps').innerText = dpskDataRateFormatted;
+document.getElementById('out_dpskDataRateUnit').innerText = dpskDataRateUnit;
 // Update Budget Table
 setText('out_txPowerW_lbl', txPowerW);
 setText('out_txPowerDbm', txPowerDbm.toFixed(2) + ' dBm');
